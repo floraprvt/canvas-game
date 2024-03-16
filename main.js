@@ -2,6 +2,7 @@ import './style.css'
 import resources from './src/Resources'
 import { Sprite } from './src/Sprite'
 import { Vector2 } from './src/Vector2'
+import { GameLoop } from './src/GameLoop'
 
 const canvas = document.getElementById('game-canvas')
 const ctx = canvas.getContext('2d')
@@ -16,6 +17,11 @@ const groundSprite = new Sprite({
   frameSize: new Vector2(320, 180),
 })
 
+const shadow = new Sprite({
+  resource: resources.images.shadow,
+  frameSize: new Vector2(32, 32),
+})
+
 const hero = new Sprite({
   resource: resources.images.hero,
   frameSize: new Vector2(32, 32),
@@ -25,10 +31,10 @@ const hero = new Sprite({
 })
 const heroPos = new Vector2(16 * 6, 16 * 5)
 
-const shadow = new Sprite({
-  resource: resources.images.shadow,
-  frameSize: new Vector2(32, 32),
-})
+const update = () => {
+  hero.frame++
+  heroPos.x++
+}
 
 const draw = () => {
   skySprite.drawImage(ctx, 0, 0)
@@ -42,7 +48,5 @@ const draw = () => {
   hero.drawImage(ctx, heroPosX, heroPosY)
 }
 
-setInterval(() => {
-  hero.frame += 1
-  draw()
-}, 300)
+const gameLoop = new GameLoop(update, draw)
+gameLoop.start()

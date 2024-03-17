@@ -5,6 +5,9 @@ import { Vector2 } from './src/Vector2'
 import { GameLoop } from './src/GameLoop'
 import { Input, DOWN, UP, LEFT, RIGHT } from './src/Input'
 
+import { gridCells } from './src/helpers/grid'
+import { moveTowards } from './src/helpers/moveTowards'
+
 const canvas = document.getElementById('game-canvas')
 const ctx = canvas.getContext('2d')
 
@@ -29,32 +32,47 @@ const hero = new Sprite({
   hFrames: 3,
   vFrames: 8,
   frame: 1,
+  position: new Vector2(gridCells(6), gridCells(5)),
 })
-const heroPos = new Vector2(16 * 6, 16 * 5)
+
+const heroDestinationPosition = hero.position.duplicate()
 
 const input = new Input()
 
 const update = () => {
-  if (input.direction) {
-    switch (input.direction) {
-      case LEFT:
-        heroPos.x -= 1
-        hero.frame = 9
-        break
-      case RIGHT:
-        heroPos.x += 1
-        hero.frame = 3
-        break
-      case UP:
-        heroPos.y -= 1
-        hero.frame = 6
-        break
-      case DOWN:
-        heroPos.y += 1
-        hero.frame = 0
-        break
-    }
+  const distance = moveTowards(hero.position, heroDestinationPosition, 1)
+  const hasArrived = distance <= 1
+  if (hasArrived) tryMove()
+}
+
+const tryMove = () => {
+  if (!input.direction) return
+
+  let nextX = heroDestinationPosition.x
+  let nextY = heroDestinationPosition.y
+  const gridSize = 16
+
+  switch (input.direction) {
+    case LEFT:
+      nextX -= gridSize
+      hero.frame = 9
+      break
+    case RIGHT:
+      nextX += gridSize
+      hero.frame = 3
+      break
+    case UP:
+      nextY -= gridSize
+      hero.frame = 6
+      break
+    case DOWN:
+      nextY += gridSize
+      hero.frame = 0
+      break
   }
+
+  heroDestinationPosition.x = nextX
+  heroDestinationPosition.y = nextY
 }
 
 const draw = () => {
@@ -62,8 +80,8 @@ const draw = () => {
   groundSprite.drawImage(ctx, 0, 0)
 
   const heroOffset = new Vector2(-8, -21)
-  const heroPosX = heroPos.x + heroOffset.x
-  const heroPosY = heroPos.y + heroOffset.y
+  const heroPosX = hero.position.x + heroOffset.x
+  const heroPosY = hero.position.y + heroOffset.y
 
   shadow.drawImage(ctx, heroPosX, heroPosY)
   hero.drawImage(ctx, heroPosX, heroPosY)

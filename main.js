@@ -1,14 +1,28 @@
 import './style.css'
+
 import resources from './src/Resources'
 import { Sprite } from './src/Sprite'
 import { Vector2 } from './src/Vector2'
 import { GameLoop } from './src/GameLoop'
 import { Input, DOWN, UP, LEFT, RIGHT } from './src/Input'
+import { Animations } from './src/Animations'
+import { FrameIndexPattern } from './src/FrameIndexPattern'
 
 import { gridCells, isSpaceFree } from './src/helpers/grid'
 import { moveTowards } from './src/helpers/moveTowards'
 
 import { walls } from './src/levels/level1'
+
+import {
+  STAND_DOWN,
+  STAND_LEFT,
+  STAND_RIGHT,
+  STAND_UP,
+  WALK_DOWN,
+  WALK_LEFT,
+  WALK_RIGHT,
+  WALK_UP,
+} from './src/objects/Hero/heroAnimations'
 
 const canvas = document.getElementById('game-canvas')
 const ctx = canvas.getContext('2d')
@@ -35,20 +49,50 @@ const hero = new Sprite({
   vFrames: 8,
   frame: 1,
   position: new Vector2(gridCells(6), gridCells(5)),
+  animations: new Animations({
+    walkDown: new FrameIndexPattern(WALK_DOWN),
+    walkUp: new FrameIndexPattern(WALK_UP),
+    walkLeft: new FrameIndexPattern(WALK_LEFT),
+    walkRight: new FrameIndexPattern(WALK_RIGHT),
+    standDown: new FrameIndexPattern(STAND_DOWN),
+    standUp: new FrameIndexPattern(STAND_UP),
+    standLeft: new FrameIndexPattern(STAND_LEFT),
+    standRight: new FrameIndexPattern(STAND_RIGHT),
+  }),
 })
 
 const heroDestinationPosition = hero.position.duplicate()
+let heroFacing = DOWN
 
 const input = new Input()
 
-const update = () => {
+const update = (delta) => {
   const distance = moveTowards(hero.position, heroDestinationPosition, 1)
   const hasArrived = distance <= 1
   if (hasArrived) tryMove()
+
+  hero.step(delta)
 }
 
 const tryMove = () => {
-  if (!input.direction) return
+  if (!input.direction) {
+    switch (heroFacing) {
+      case LEFT:
+        hero.animations.play('standLeft')
+        break
+      case RIGHT:
+        hero.animations.play('standRight')
+        break
+      case UP:
+        hero.animations.play('standUp')
+        break
+      case DOWN:
+        hero.animations.play('standDown')
+        break
+    }
+
+    return
+  }
 
   let nextX = heroDestinationPosition.x
   let nextY = heroDestinationPosition.y
@@ -57,21 +101,22 @@ const tryMove = () => {
   switch (input.direction) {
     case LEFT:
       nextX -= gridSize
-      hero.frame = 9
+      hero.animations.play('walkLeft')
       break
     case RIGHT:
       nextX += gridSize
-      hero.frame = 3
+      hero.animations.play('walkRight')
       break
     case UP:
       nextY -= gridSize
-      hero.frame = 6
+      hero.animations.play('walkUp')
       break
     case DOWN:
       nextY += gridSize
-      hero.frame = 0
+      hero.animations.play('walkDown')
       break
   }
+  heroFacing = input.direction ?? heroFacing
 
   if (isSpaceFree(walls, nextX, nextY)) {
     heroDestinationPosition.x = nextX

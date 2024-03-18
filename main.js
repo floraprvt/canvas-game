@@ -11,6 +11,7 @@ import { gridCells } from './src/helpers/grid'
 
 import { GameObject } from './src/GameObject'
 import { Hero } from './src/objects/Hero/Hero'
+import { Rod } from './src/objects/Rod/Rod'
 
 const canvas = document.getElementById('game-canvas')
 const ctx = canvas.getContext('2d')
@@ -30,6 +31,9 @@ mainScene.addChild(groundSprite)
 
 const hero = new Hero(gridCells(6), gridCells(5))
 mainScene.addChild(hero)
+
+const rod = new Rod(gridCells(7), gridCells(6))
+mainScene.addChild(rod)
 
 const camera = new Camera()
 mainScene.addChild(camera)

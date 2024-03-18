@@ -5,6 +5,7 @@ class Resources {
       hero: '/sprites/hero-sheet.png',
       ground: '/sprites/ground.png',
       shadow: '/sprites/shadow.png',
+      rod: '/sprites/rod.png',
     }
 
     this.images = {}

@@ -21,6 +21,7 @@ import {
   STAND_UP,
   STAND_LEFT,
   STAND_RIGHT,
+  PICK_UP_DOWN,
 } from './heroAnimations'
 
 export class Hero extends GameObject {
@@ -50,15 +51,25 @@ export class Hero extends GameObject {
         standUp: new FrameIndexPattern(STAND_UP),
         standLeft: new FrameIndexPattern(STAND_LEFT),
         standRight: new FrameIndexPattern(STAND_RIGHT),
+        pickUpDown: new FrameIndexPattern(PICK_UP_DOWN),
       }),
     })
     this.addChild(this.body)
 
     this.facingDirection = DOWN
     this.destinationPosition = this.position.duplicate()
+    this.itemPickupTime = 0
+    this.itemPickupShell = null
+
+    events.on('HERO_PICKS_UP_ITEM', this, (data) => this.onPickUpItem(data))
   }
 
   step(delta, root) {
+    if (this.itemPickupTime > 10) {
+      this.workOnItemPickup(delta)
+      return
+    }
+
     const distance = moveTowards(this.position, this.destinationPosition, 1)
     const hasArrived = distance <= 1
     if (hasArrived) this.tryMove(root)
@@ -123,6 +134,31 @@ export class Hero extends GameObject {
     if (isSpaceFree(walls, nextX, nextY)) {
       this.destinationPosition.x = nextX
       this.destinationPosition.y = nextY
+    }
+  }
+
+  onPickUpItem({ image, position }) {
+    this.destinationPosition = position.duplicate()
+
+    this.itemPickupTime = 1300
+
+    this.itemPickupShell = new GameObject({})
+    this.itemPickupShell.addChild(
+      new Sprite({
+        resource: image,
+        position: new Vector2(0, -18),
+      })
+    )
+    this.addChild(this.itemPickupShell)
+  }
+
+  workOnItemPickup(delta) {
+    this.itemPickupTime -= delta
+
+    this.body.animations.play('pickUpDown')
+
+    if (this.itemPickupTime <= 0) {
+      this.itemPickupShell.destroy()
     }
   }
 }

@@ -28,5 +28,10 @@ export class Rod extends GameObject {
 
   onCollideWithHero() {
     this.destroy()
+
+    events.emit('HERO_PICKS_UP_ITEM', {
+      image: resources.images.rod,
+      position: this.position,
+    })
   }
 }

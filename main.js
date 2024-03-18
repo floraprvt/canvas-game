@@ -12,6 +12,7 @@ import { gridCells } from './src/helpers/grid'
 import { GameObject } from './src/GameObject'
 import { Hero } from './src/objects/Hero/Hero'
 import { Rod } from './src/objects/Rod/Rod'
+import { Inventory } from './src/objects/Inventory/Inventory'
 
 const canvas = document.getElementById('game-canvas')
 const ctx = canvas.getContext('2d')
@@ -35,6 +36,8 @@ mainScene.addChild(hero)
 const rod = new Rod(gridCells(7), gridCells(6))
 mainScene.addChild(rod)
 
+const inventory = new Inventory()
+
 const camera = new Camera()
 mainScene.addChild(camera)
 
@@ -56,6 +59,8 @@ const draw = () => {
   mainScene.draw(ctx, 0, 0)
 
   ctx.restore()
+
+  inventory.draw(ctx, 0, 0)
 }
 
 const gameLoop = new GameLoop(update, draw)

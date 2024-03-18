@@ -2,10 +2,10 @@ import { GameObject } from '../../GameObject'
 import { Vector2 } from '../../Vector2'
 import { Sprite } from '../../Sprite'
 import { DOWN, UP, LEFT, RIGHT } from '../../Input'
-
 import { Animations } from '../../Animations'
 import { FrameIndexPattern } from '../../FrameIndexPattern'
 import resources from '../../Resources'
+import events from '../../Events'
 
 import { moveTowards } from '../../helpers/moveTowards'
 import { isSpaceFree } from '../../helpers/grid'
@@ -62,6 +62,16 @@ export class Hero extends GameObject {
     const distance = moveTowards(this.position, this.destinationPosition, 1)
     const hasArrived = distance <= 1
     if (hasArrived) this.tryMove(root)
+
+    this.tryEmitPosition()
+  }
+
+  tryEmitPosition() {
+    if (this.lastX === this.position.x && this.lastY === this.position.y) return
+    this.lastX = this.position.x
+    this.lastY = this.position.y
+
+    events.emit('HERO_POSITION', this.position)
   }
 
   tryMove(root) {

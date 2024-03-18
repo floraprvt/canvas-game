@@ -1,6 +1,7 @@
 import './style.css'
 
 import resources from './src/Resources'
+import events from './src/Events'
 import { Sprite } from './src/Sprite'
 import { Vector2 } from './src/Vector2'
 import { GameLoop } from './src/GameLoop'
@@ -32,6 +33,10 @@ const hero = new Hero(gridCells(6), gridCells(5))
 mainScene.addChild(hero)
 
 mainScene.input = new Input()
+
+events.on('HERO_POSITION', mainScene, (heroPosition) => {
+  console.log('moved', heroPosition)
+})
 
 const update = (delta) => {
   mainScene.stepEntry(delta, mainScene)

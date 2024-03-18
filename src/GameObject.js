@@ -6,13 +6,22 @@ export class GameObject {
     this.position = position ?? new Vector2(0, 0)
     this.children = []
     this.parent = null
+    this.isReady = false
   }
 
   stepEntry(delta, root) {
     this.children.forEach((child) => child.stepEntry(delta, root))
 
+    if (!this.isReady) {
+      this.isReady = true
+      this.ready()
+    }
+
     this.step(delta, root)
   }
+
+  ready() {}
+
   step(_delta) {}
 
   draw(ctx, x, y) {
